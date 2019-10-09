@@ -31,6 +31,15 @@ export class ListScreen extends Component {
         this.setState({owner: e.target.value})
         this.props.setListOwner(e.target.value);
     }
+    sortTasks(){
+        this.props.sortTasks();
+    }
+    sortDates(){
+        this.props.sortDates();
+    }
+    sortComplete(){
+        this.props.sortComplete();
+    }
     render() {
         return (
             <div id="todo_list">
@@ -54,7 +63,10 @@ export class ListScreen extends Component {
                             id="list_owner_textfield" />
                     </div>
                 </div>
-                <ListItemsTable todoList={this.props.todoList} />
+                <ListItemsTable todoList={this.props.todoList} 
+                sortTasks={this.sortTasks.bind(this)}
+                sortDates={this.sortDates.bind(this)}
+                sortComplete={this.sortComplete.bind(this)} />
             </div>
         )
     }

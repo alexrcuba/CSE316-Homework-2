@@ -14,20 +14,155 @@ class App extends Component {
   state = {
     currentScreen: AppScreen.HOME_SCREEN,
     todoLists: testTodoListData.todoLists,
-    currentList: null
+    currentList: null,
+    reverseTaskSort: true,
+    reverseDateSort: true,
+    reverseCompletedSort: true
   }
 
   setListName = (name) => {
-    this.state.currentList.name = name;
+    let updatedList = this.state.currentList;
+    updatedList.name = name;
+    this.setState({currentList: updatedList});
   }
 
   setListOwner = (owner) => {
-    this.state.currentList.owner = owner;
+    let updatedList = this.state.currentList;
+    updatedList.owner = owner;
+    this.setState({currentList: updatedList});
   }
 
   goHome = () => {
     this.setState({currentScreen: AppScreen.HOME_SCREEN});
     this.setState({currentList: null});
+  }
+
+  sortTasks = () =>{
+    let updatedList = this.state.currentList;
+    if(this.state.reverseTaskSort){
+      updatedList.items.sort((a,b) => a.description > b.description);
+    } else {
+      updatedList.items.sort((a,b) => a.description < b.description);
+    }
+    
+    if(this.findFirstDate() == 0){
+      this.setState({
+        reverseDateSort: true
+      })
+    } else{
+      this.setState({
+        reverseDateSort: false
+      })
+    }
+    if(this.findFirstCompleted() == 0){
+      this.setState({
+        reverseCompletedSort: true
+      })
+    } else{
+      this.setState({
+        reverseCompletedSort: false
+      })
+    }
+    this.setState({
+      currentList: updatedList,
+      reverseTaskSort: !this.state.reverseTaskSort
+    })
+  }
+
+  sortDates = () =>{
+    let updatedList = this.state.currentList;
+    if(this.state.reverseDateSort){
+      updatedList.items.sort((a,b) => a.due_date > b.due_date);
+    } else {
+      updatedList.items.sort((a,b) => a.due_date < b.due_date);
+    }
+    if(this.findFirstTask() == 0){
+      this.setState({
+        reverseTaskSort: true
+      })
+    } else{
+      this.setState({
+        reverseTaskSort: false
+      })
+    }
+    if(this.findFirstCompleted() == 0){
+      this.setState({
+        reverseCompletedSort: true
+      })
+    } else{
+      this.setState({
+        reverseCompletedSort: false
+      })
+    }
+    this.setState({
+      currentList: updatedList,
+      reverseDateSort: !this.state.reverseDateSort
+    })
+  }
+
+  sortComplete = () =>{
+    let updatedList = this.state.currentList;
+    if(this.state.reverseCompletedSort){
+      updatedList.items.sort((a,b) => a.completed > b.completed);
+    } else {
+      updatedList.items.sort((a,b) => a.completed < b.completed);
+    }
+    if(this.findFirstTask() == 0){
+      this.setState({
+        reverseTaskSort: false
+      })
+    } else{
+      this.setState({
+        reverseTaskSort: true
+      })
+    }
+    if(this.findFirstDate() == 0){
+      this.setState({
+        reverseDateSort: false
+      })
+    } else{
+      this.setState({
+        reverseDateSort: true
+      })
+    }
+    this.setState({
+      currentList: updatedList,
+      reverseCompletedSort: !this.state.reverseCompletedSort
+    })
+  }
+
+  findFirstTask(){
+    let updatedList = this.state.currentList;
+    for(let i = 0; i < updatedList.items.length-1; i++){
+      if(updatedList.items[i].description <= updatedList.items[i+1].description){
+        return i;
+      } else{
+        return i+1;
+      }
+    }
+    return -1;
+  }
+
+  findFirstDate(){
+    let updatedList = this.state.currentList;
+    for(let i = 0; i < updatedList.items.length-1; i++){
+      if(updatedList.items[i].due_date <= updatedList.items[i+1].due_date){
+        return i;
+      } else{
+        return i+1;
+      }
+    }
+    return -1;
+  }
+
+  findFirstCompleted(){
+    let updatedList = this.state.currentList;
+    for(let i = 0; i < updatedList.items.length; i++){
+      if(updatedList.items[i].completed == true){
+        return i;
+      }
+    }
+    return -1;
   }
 
   loadList = (todoListToLoad) => {
@@ -48,7 +183,10 @@ class App extends Component {
           goHome={this.goHome.bind(this)}
           todoList={this.state.currentList}
           setListName={this.setListName.bind(this)}
-          setListOwner={this.setListOwner.bind(this)} />;
+          setListOwner={this.setListOwner.bind(this)}
+          sortTasks={this.sortTasks.bind(this)}
+          sortDates={this.sortDates.bind(this)}
+          sortComplete={this.sortComplete.bind(this)} />;
       case AppScreen.ITEM_SCREEN:
         return <ItemScreen />;
       default:
