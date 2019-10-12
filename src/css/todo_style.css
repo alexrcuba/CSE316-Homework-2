@@ -67,6 +67,8 @@ body {
 #list_heading {
   font-size: 36pt;
   cursor: pointer;
+  position: absolute;
+  top: 1%;
 }
 #list_heading:hover {
   color: var(--swatch-accent);

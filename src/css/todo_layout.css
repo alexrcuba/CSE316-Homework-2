@@ -45,11 +45,9 @@ body {
 /* LIST SCREEN CONTROLS */
 #list_heading {}
 #list_trash {
-  position: absolute;
-  left: 85%;
-  width: 15%;
   text-align: right;
-  top: 5%;
+  width: 5%;
+  margin-left: 95%
 }
 #list_details_container {
   padding-left: 2%;

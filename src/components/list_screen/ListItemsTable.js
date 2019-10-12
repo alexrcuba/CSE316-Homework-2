@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import ListItemCard from './ListItemCard'
+//import { throwStatement } from '@babel/types';
 
 export class ListItemsTable extends Component {
     sortTasks = (e) => {
@@ -16,7 +17,18 @@ export class ListItemsTable extends Component {
         e.preventDefault();
         this.props.sortComplete();
     }
-
+    getLength(){
+        return this.props.todoList.items.length;
+    }
+    moveListItemUp = (index) => {
+        this.props.moveListItemUp(index);
+    }
+    moveListItemDown = (index) => {
+        this.props.moveListItemDown(index);
+    }
+    removeListItem = (index) => {
+        this.props.removeListItem(index);
+    }
     render() {
         return (
             <div id="list_items_and_header_container">
@@ -31,7 +43,11 @@ export class ListItemsTable extends Component {
                     this.props.todoList.items.map((todoItem)=>(
                         <ListItemCard 
                             key={todoItem.key}
-                            listItem={todoItem} />
+                            listItem={todoItem}
+                            getLength={this.getLength.bind(this)}
+                            moveListItemUp={this.moveListItemUp.bind(this)}
+                            moveListItemDown={this.moveListItemDown.bind(this)}
+                            removeListItem={this.removeListItem.bind(this)} />
                     ))
                 }
             </div>

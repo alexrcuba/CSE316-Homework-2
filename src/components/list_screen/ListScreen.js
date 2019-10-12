@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import ListHeading from './ListHeading'
 import ListItemsTable from './ListItemsTable'
 import ListTrash from './ListTrash'
-import PropTypes from 'prop-types';
+//import PropTypes from 'prop-types';
 
 export class ListScreen extends Component {
     state = {
@@ -40,11 +40,22 @@ export class ListScreen extends Component {
     sortComplete(){
         this.props.sortComplete();
     }
+    moveListItemUp = (index) => {
+        this.props.moveListItemUp(index);
+    }
+    moveListItemDown = (index) => {
+        this.props.moveListItemDown(index);
+    }
+    removeListItem = (index) => {
+        this.props.removeListItem(index);
+    }
     render() {
         return (
             <div id="todo_list">
+                <div id="top_of_todolist">
                 <ListHeading goHome={this.props.goHome} />
                 <ListTrash />
+                </div>
                 <div id="list_details_container">
                     <div id="list_details_name_container" className="text_toolbar">
                         <span id="list_name_prompt">Name:</span>
@@ -66,7 +77,10 @@ export class ListScreen extends Component {
                 <ListItemsTable todoList={this.props.todoList} 
                 sortTasks={this.sortTasks.bind(this)}
                 sortDates={this.sortDates.bind(this)}
-                sortComplete={this.sortComplete.bind(this)} />
+                sortComplete={this.sortComplete.bind(this)}
+                moveListItemUp={this.moveListItemUp.bind(this)}
+                moveListItemDown={this.moveListItemDown.bind(this)}
+                removeListItem={this.removeListItem.bind(this)} />
             </div>
         )
     }

@@ -45,7 +45,7 @@ class App extends Component {
       updatedList.items.sort((a,b) => a.description < b.description);
     }
     
-    if(this.findFirstDate() == 0){
+    if(this.findFirstDate() === 0){
       this.setState({
         reverseDateSort: true
       })
@@ -54,7 +54,7 @@ class App extends Component {
         reverseDateSort: false
       })
     }
-    if(this.findFirstCompleted() == 0){
+    if(this.findFirstCompleted() === 0){
       this.setState({
         reverseCompletedSort: true
       })
@@ -63,6 +63,7 @@ class App extends Component {
         reverseCompletedSort: false
       })
     }
+    this.readjustKeys(updatedList);
     this.setState({
       currentList: updatedList,
       reverseTaskSort: !this.state.reverseTaskSort
@@ -76,7 +77,7 @@ class App extends Component {
     } else {
       updatedList.items.sort((a,b) => a.due_date < b.due_date);
     }
-    if(this.findFirstTask() == 0){
+    if(this.findFirstTask() === 0){
       this.setState({
         reverseTaskSort: true
       })
@@ -85,7 +86,7 @@ class App extends Component {
         reverseTaskSort: false
       })
     }
-    if(this.findFirstCompleted() == 0){
+    if(this.findFirstCompleted() === 0){
       this.setState({
         reverseCompletedSort: true
       })
@@ -94,6 +95,7 @@ class App extends Component {
         reverseCompletedSort: false
       })
     }
+    this.readjustKeys(updatedList);
     this.setState({
       currentList: updatedList,
       reverseDateSort: !this.state.reverseDateSort
@@ -107,7 +109,7 @@ class App extends Component {
     } else {
       updatedList.items.sort((a,b) => a.completed < b.completed);
     }
-    if(this.findFirstTask() == 0){
+    if(this.findFirstTask() === 0){
       this.setState({
         reverseTaskSort: false
       })
@@ -116,7 +118,7 @@ class App extends Component {
         reverseTaskSort: true
       })
     }
-    if(this.findFirstDate() == 0){
+    if(this.findFirstDate() === 0){
       this.setState({
         reverseDateSort: false
       })
@@ -125,6 +127,7 @@ class App extends Component {
         reverseDateSort: true
       })
     }
+    this.readjustKeys(updatedList);
     this.setState({
       currentList: updatedList,
       reverseCompletedSort: !this.state.reverseCompletedSort
@@ -158,11 +161,18 @@ class App extends Component {
   findFirstCompleted(){
     let updatedList = this.state.currentList;
     for(let i = 0; i < updatedList.items.length; i++){
-      if(updatedList.items[i].completed == true){
+      if(updatedList.items[i].completed === true){
         return i;
       }
     }
     return -1;
+  }
+
+  readjustKeys(updateList){
+    let i = 0;
+    for(i; i < updateList.items.length; i++){
+      updateList.items[i].key = i;
+    }
   }
 
   loadList = (todoListToLoad) => {
@@ -172,6 +182,104 @@ class App extends Component {
     console.log("currentScreen: " + this.state.currentScreen);
   }
 
+  moveListItemUp = (index) => {
+    let updateList = this.state.currentList;
+    if(index > 0){
+      let temp = updateList.items[index-1];
+      updateList.items[index-1] = updateList.items[index];
+      updateList.items[index-1].key -= 1;
+      updateList.items[index] = temp;
+      updateList.items[index].key +=1;
+      }
+      if(this.findFirstTask() === 0){
+        this.setState({
+          reverseTaskSort: true
+        })
+      } else{
+        this.setState({
+          reverseTaskSort: false
+        })
+      }
+      if(this.findFirstCompleted() === 0){
+        this.setState({
+          reverseCompletedSort: true
+        })
+      } else{
+        this.setState({
+          reverseCompletedSort: false
+        })
+      }
+    if(this.findFirstCompleted() === 0){
+      this.setState({
+        reverseCompletedSort: true
+      })
+    }
+    this.setState({currentList: updateList});
+  }
+
+  moveListItemDown = (index) => {
+    let updateList = this.state.currentList;
+    if(index < updateList.items.length-1){
+      let temp = updateList.items[index+1];
+      updateList.items[index+1] = updateList.items[index];
+      updateList.items[index+1].key += 1;
+      updateList.items[index] = temp;
+      updateList.items[index].key -=1;
+      }
+      if(this.findFirstTask() === 0){
+        this.setState({
+          reverseTaskSort: true
+        })
+      } else{
+        this.setState({
+          reverseTaskSort: false
+        })
+      }
+      if(this.findFirstCompleted() === 0){
+        this.setState({
+          reverseCompletedSort: true
+        })
+      } else{
+        this.setState({
+          reverseCompletedSort: false
+        })
+      }
+    if(this.findFirstCompleted() === 0){
+      this.setState({
+        reverseCompletedSort: true
+      })
+    }
+    this.setState({currentList: updateList});
+  }
+  removeListItem  = (index) => {
+    let updateList = this.state.currentList;
+    updateList.items.splice(index, 1);
+    this.readjustKeys(updateList);
+    if(this.findFirstTask() === 0){
+        this.setState({
+          reverseTaskSort: true
+        })
+      } else{
+        this.setState({
+          reverseTaskSort: false
+        })
+      }
+      if(this.findFirstCompleted() === 0){
+        this.setState({
+          reverseCompletedSort: true
+        })
+      } else{
+        this.setState({
+          reverseCompletedSort: false
+        })
+      }
+    if(this.findFirstCompleted() === 0){
+      this.setState({
+        reverseCompletedSort: true
+      })
+    }
+    this.setState({currentList: updateList});
+  }
   render() {
     switch(this.state.currentScreen) {
       case AppScreen.HOME_SCREEN:
@@ -186,7 +294,10 @@ class App extends Component {
           setListOwner={this.setListOwner.bind(this)}
           sortTasks={this.sortTasks.bind(this)}
           sortDates={this.sortDates.bind(this)}
-          sortComplete={this.sortComplete.bind(this)} />;
+          sortComplete={this.sortComplete.bind(this)}
+          moveListItemUp={this.moveListItemUp.bind(this)}
+          moveListItemDown={this.moveListItemDown.bind(this)}
+          removeListItem={this.removeListItem.bind(this)} />;
       case AppScreen.ITEM_SCREEN:
         return <ItemScreen />;
       default:
