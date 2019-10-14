@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import ListHeading from './ListHeading'
 import ListItemsTable from './ListItemsTable'
 import ListTrash from './ListTrash'
-//import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 
 export class ListScreen extends Component {
     state = {
@@ -49,6 +49,12 @@ export class ListScreen extends Component {
     removeListItem = (index) => {
         this.props.removeListItem(index);
     }
+    goItemScreen = (index) => {
+        this.props.goItemScreen(index);
+    }
+    createNewItem = (index) => {
+        this.props.createNewItem(index);
+    }
     render() {
         return (
             <div id="todo_list">
@@ -80,10 +86,23 @@ export class ListScreen extends Component {
                 sortComplete={this.sortComplete.bind(this)}
                 moveListItemUp={this.moveListItemUp.bind(this)}
                 moveListItemDown={this.moveListItemDown.bind(this)}
-                removeListItem={this.removeListItem.bind(this)} />
+                removeListItem={this.removeListItem.bind(this)}
+                goItemScreen={this.goItemScreen.bind(this)}
+                createNewItem={this.createNewItem.bind(this)} />
             </div>
         )
     }
+}
+
+
+
+ListScreen.propTypes = {
+    todoList: PropTypes.shape({
+        key: PropTypes.number.isRequired,
+        name: PropTypes.string.isRequired,
+        owner: PropTypes.string.isRequired,
+        items: PropTypes.array.isRequired
+    })
 }
 
 export default ListScreen

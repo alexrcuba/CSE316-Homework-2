@@ -15,9 +15,10 @@ class App extends Component {
     currentScreen: AppScreen.HOME_SCREEN,
     todoLists: testTodoListData.todoLists,
     currentList: null,
+    currentItem: null,
     reverseTaskSort: true,
     reverseDateSort: true,
-    reverseCompletedSort: true
+    reverseCompletedSort: true,
   }
 
   setListName = (name) => {
@@ -35,6 +36,15 @@ class App extends Component {
   goHome = () => {
     this.setState({currentScreen: AppScreen.HOME_SCREEN});
     this.setState({currentList: null});
+  }
+
+  goItemScreen = (index) => {
+    this.newDescription = this.state.currentList.items[index].description;
+    this.newAssignedTo = this.state.currentList.items[index].assigned_to;
+    this.newDueDate = this.state.currentList.items[index].due_date;
+    this.newCompleted = this.state.currentList.items[index].completed;
+    this.setState({currentScreen: AppScreen.ITEM_SCREEN,
+      currentItem: index});
   }
 
   sortTasks = () =>{
@@ -181,7 +191,10 @@ class App extends Component {
     console.log("currentList: " + this.state.currentList);
     console.log("currentScreen: " + this.state.currentScreen);
   }
-
+  newDescription = null;
+  newAssignedTo = null;
+  newDueDate = null;
+  newCompleted = null;
   moveListItemUp = (index) => {
     let updateList = this.state.currentList;
     if(index > 0){
@@ -280,6 +293,53 @@ class App extends Component {
     }
     this.setState({currentList: updateList});
   }
+  setDescription = (description) => {
+    this.newDescription = description;
+  }
+  setAssignedTo = (assigned_to) => {
+    this.newAssignedTo = assigned_to;
+  }
+  setDueDate = (due_date) => {
+    this.newDueDate = due_date;
+  }
+  setCompleted = (completed) => {
+    this.newCompleted = completed;
+  }
+  submitChanges = () => {
+    let updateList = this.state.currentList;
+    this.readjustKeys(updateList);
+    updateList.items[this.state.currentItem].description = this.newDescription;
+    updateList.items[this.state.currentItem].assigned_to = this.newAssignedTo;
+    updateList.items[this.state.currentItem].due_date = this.newDueDate;
+    updateList.items[this.state.currentItem].completed = this.newCompleted;
+    this.setState({currentScreen: AppScreen.LIST_SCREEN,
+      currentList: updateList,
+      currentItem: null})
+  }
+  cancelChanges = () => {
+    this.setState({currentScreen: AppScreen.LIST_SCREEN,
+      currentItem: null
+    });
+  }
+  createNewItem = (index) => {
+    let updateList = this.state.currentList;
+    let newItem = {
+      key: null,
+      description: "Unknown",
+      due_date: "",
+      assigned_to: "Unknown",
+      completed: false
+    };
+    newItem.key = index;
+    updateList.items.push(newItem);
+    this.setState({currentList: updateList,
+      currentScreen: AppScreen.ITEM_SCREEN,
+      currentItem: index});
+    this.newDescription = this.state.currentList.items[index].description;
+    this.newAssignedTo = this.state.currentList.items[index].assigned_to;
+    this.newDueDate = this.state.currentList.items[index].due_date;
+    this.newCompleted = this.state.currentList.items[index].completed;
+  }
   render() {
     switch(this.state.currentScreen) {
       case AppScreen.HOME_SCREEN:
@@ -297,9 +357,18 @@ class App extends Component {
           sortComplete={this.sortComplete.bind(this)}
           moveListItemUp={this.moveListItemUp.bind(this)}
           moveListItemDown={this.moveListItemDown.bind(this)}
-          removeListItem={this.removeListItem.bind(this)} />;
+          removeListItem={this.removeListItem.bind(this)}
+          goItemScreen={this.goItemScreen.bind(this)}
+          createNewItem={this.createNewItem.bind(this)} />;
       case AppScreen.ITEM_SCREEN:
-        return <ItemScreen />;
+        return <ItemScreen
+          todoItem={this.state.currentList.items[this.state.currentItem]}
+          setDescription={this.setDescription.bind(this)}
+          setAssignedTo={this.setAssignedTo.bind(this)}
+          setDueDate={this.setDueDate.bind(this)}
+          setCompleted={this.setCompleted.bind(this)}
+          submitChanges={this.submitChanges.bind(this)}
+          cancelChanges={this.cancelChanges.bind(this)} />;
       default:
         return <div>ERROR</div>;
     }

@@ -25,19 +25,28 @@ export class ListItemCard extends Component {
     }
     moveListItemUp = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         this.props.moveListItemUp(this.props.listItem.key);
     }
     moveListItemDown = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         this.props.moveListItemDown(this.props.listItem.key);
     }
     removeListItem = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         this.props.removeListItem(this.props.listItem.key);
+    }
+    goItemScreen = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.props.goItemScreen(this.props.listItem.key);
     }
     render() {
         return (
-            <div className='list_item_card'>
+            <div className='list_item_card'
+            onClick={this.goItemScreen}>
                 <div className='list_item_card_description'>
                     {this.props.listItem.description}
                 </div>

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import ListItemCard from './ListItemCard'
-//import { throwStatement } from '@babel/types';
 
 export class ListItemsTable extends Component {
     sortTasks = (e) => {
@@ -29,6 +28,12 @@ export class ListItemsTable extends Component {
     removeListItem = (index) => {
         this.props.removeListItem(index);
     }
+    goItemScreen = (index) => {
+        this.props.goItemScreen(index);
+    }
+    createNewItem = (e) => {
+        this.props.createNewItem(this.props.todoList.items.length);
+    }
     render() {
         return (
             <div id="list_items_and_header_container">
@@ -47,10 +52,13 @@ export class ListItemsTable extends Component {
                             getLength={this.getLength.bind(this)}
                             moveListItemUp={this.moveListItemUp.bind(this)}
                             moveListItemDown={this.moveListItemDown.bind(this)}
-                            removeListItem={this.removeListItem.bind(this)} />
+                            removeListItem={this.removeListItem.bind(this)}
+                            goItemScreen={this.goItemScreen.bind(this)} />
                     ))
                 }
             </div>
+            <div className="list_item_add_card"
+              onClick={this.createNewItem}>+</div>
             </div>
         )
     }
