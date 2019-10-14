@@ -55,12 +55,16 @@ export class ListScreen extends Component {
     createNewItem = (index) => {
         this.props.createNewItem(index);
     }
+    deleteList = (index) => {
+        this.props.deleteList(index);
+    }
     render() {
         return (
             <div id="todo_list">
                 <div id="top_of_todolist">
                 <ListHeading goHome={this.props.goHome} />
-                <ListTrash />
+                <ListTrash todoList={this.props.todoList}
+                deleteList={this.deleteList.bind(this)}/>
                 </div>
                 <div id="list_details_container">
                     <div id="list_details_name_container" className="text_toolbar">

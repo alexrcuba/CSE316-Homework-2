@@ -23,13 +23,21 @@ class App extends Component {
 
   setListName = (name) => {
     let updatedList = this.state.currentList;
-    updatedList.name = name;
+    if(name === ""){
+      updatedList.name = "null";
+    } else {
+      updatedList.name = name;
+    }
     this.setState({currentList: updatedList});
   }
 
   setListOwner = (owner) => {
     let updatedList = this.state.currentList;
-    updatedList.owner = owner;
+    if(owner === ""){
+      updatedList.owner = "null";
+    } else {
+      updatedList.owner = owner;
+    }
     this.setState({currentList: updatedList});
   }
 
@@ -185,6 +193,13 @@ class App extends Component {
     }
   }
 
+  readjustKeysList(updateList){
+    let i = 0;
+    for(i; i < updateList.length; i++){
+      updateList[i].key = i;
+    }
+  }
+
   loadList = (todoListToLoad) => {
     this.setState({currentScreen: AppScreen.LIST_SCREEN});
     this.setState({currentList: todoListToLoad});
@@ -317,8 +332,11 @@ class App extends Component {
       currentItem: null})
   }
   cancelChanges = () => {
+    let updateList = this.state.currentList;
+    updateList.items.splice((updateList.items.length-1), 1);
     this.setState({currentScreen: AppScreen.LIST_SCREEN,
-      currentItem: null
+      currentItem: null,
+      currentList: updateList
     });
   }
   createNewItem = (index) => {
@@ -340,12 +358,33 @@ class App extends Component {
     this.newDueDate = this.state.currentList.items[index].due_date;
     this.newCompleted = this.state.currentList.items[index].completed;
   }
+  deleteList = (index) => {
+    let updateList = this.state.todoLists;
+    updateList.splice(index, 1);
+    this.readjustKeysList(updateList);
+    this.setState({currentList: null,
+    todoLists: updateList,
+    currentScreen: AppScreen.HOME_SCREEN});
+  }
+  createNewList = () => {
+    let updateList = this.state.todoLists;
+    let newList = {
+      key: updateList.length,
+      name: "Unknown",
+      owner: "Unknown",
+      items: []
+    };
+    updateList.push(newList);
+    this.setState({currentList: newList,
+      currentScreen: AppScreen.LIST_SCREEN});
+  }
   render() {
     switch(this.state.currentScreen) {
       case AppScreen.HOME_SCREEN:
         return <HomeScreen 
         loadList={this.loadList.bind(this)} 
-        todoLists={this.state.todoLists} />;
+        todoLists={this.state.todoLists}
+        createNewList={this.createNewList} />;
       case AppScreen.LIST_SCREEN:            
         return <ListScreen
           goHome={this.goHome.bind(this)}
@@ -359,7 +398,8 @@ class App extends Component {
           moveListItemDown={this.moveListItemDown.bind(this)}
           removeListItem={this.removeListItem.bind(this)}
           goItemScreen={this.goItemScreen.bind(this)}
-          createNewItem={this.createNewItem.bind(this)} />;
+          createNewItem={this.createNewItem.bind(this)}
+          deleteList={this.deleteList.bind(this)} />;
       case AppScreen.ITEM_SCREEN:
         return <ItemScreen
           todoItem={this.state.currentList.items[this.state.currentItem]}

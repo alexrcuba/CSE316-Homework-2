@@ -45,7 +45,7 @@ export class ListItemsTable extends Component {
             </div>
             <div id="list_item_container">
                 {
-                    this.props.todoList.items.map((todoItem)=>(
+                    this.props.todoList.items.filter(i => i !== null).map((todoItem)=>(
                         <ListItemCard 
                             key={todoItem.key}
                             listItem={todoItem}
