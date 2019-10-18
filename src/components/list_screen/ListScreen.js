@@ -5,10 +5,6 @@ import ListTrash from './ListTrash'
 import PropTypes from 'prop-types';
 
 export class ListScreen extends Component {
-    state = {
-        name: this.getListName(),
-        owner: this.getListOwner()
-    }
     getListName() {
         if (this.props.todoList) {
             let name = this.props.todoList.name;
@@ -58,9 +54,23 @@ export class ListScreen extends Component {
     deleteList = (index) => {
         this.props.deleteList(index);
     }
+    transactions = (e) => {
+        if (e.nativeEvent.keyCode === 90) { 
+            if(e.nativeEvent.ctrlKey){
+                this.props.undoTransaction();
+            }
+         } else if (e.nativeEvent.keyCode === 89) { 
+            if(e.nativeEvent.ctrlKey){
+                this.props.redoTransaction();
+            }
+        }
+    }
+
     render() {
         return (
-            <div id="todo_list">
+            <div id="todo_list"
+                onKeyDown = {this.transactions}
+                tabIndex = "0">
                 <div id="top_of_todolist">
                 <ListHeading goHome={this.props.goHome} />
                 <ListTrash todoList={this.props.todoList}
@@ -70,7 +80,7 @@ export class ListScreen extends Component {
                     <div id="list_details_name_container" className="text_toolbar">
                         <span id="list_name_prompt">Name:</span>
                         <input 
-                            value={this.state.name}
+                            value={this.getListName()}
                             onChange = {this.setListName}
                             type="text" 
                             id="list_name_textfield" />
@@ -78,7 +88,7 @@ export class ListScreen extends Component {
                     <div id="list_details_owner_container" className="text_toolbar">
                         <span id="list_owner_prompt">Owner:</span>
                         <input 
-                            value={this.state.owner}
+                            value={this.getListOwner()}
                             onChange = {this.setListOwner}
                             type="text" 
                             id="list_owner_textfield" />
@@ -97,7 +107,6 @@ export class ListScreen extends Component {
         )
     }
 }
-
 
 
 ListScreen.propTypes = {

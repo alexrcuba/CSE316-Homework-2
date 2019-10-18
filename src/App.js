@@ -3,6 +3,8 @@ import testTodoListData from './TestTodoListData.json'
 import HomeScreen from './components/home_screen/HomeScreen'
 import ItemScreen from './components/item_screen/ItemScreen'
 import ListScreen from './components/list_screen/ListScreen'
+import todoList_Transaction from './jsTPS/todoList_Transaction.js'
+import jsTPS from './jsTPS/jsTPS.js'
 
 const AppScreen = {
   HOME_SCREEN: "HOME_SCREEN",
@@ -11,6 +13,11 @@ const AppScreen = {
 }
 
 class App extends Component {
+  constructor(){
+    super();
+    this.jsTPS = new jsTPS();
+    this.newItem = 0;
+  }
   state = {
     currentScreen: AppScreen.HOME_SCREEN,
     todoLists: testTodoListData.todoLists,
@@ -23,6 +30,7 @@ class App extends Component {
 
   setListName = (name) => {
     let updatedList = this.state.currentList;
+    this.createTransaction(updatedList);
     if(name === ""){
       updatedList.name = "null";
     } else {
@@ -33,6 +41,7 @@ class App extends Component {
 
   setListOwner = (owner) => {
     let updatedList = this.state.currentList;
+    this.createTransaction(updatedList);
     if(owner === ""){
       updatedList.owner = "null";
     } else {
@@ -44,19 +53,21 @@ class App extends Component {
   goHome = () => {
     this.setState({currentScreen: AppScreen.HOME_SCREEN});
     this.setState({currentList: null});
+    this.jsTPS.clearAllTransactions();
   }
 
   goItemScreen = (index) => {
-    this.newDescription = this.state.currentList.items[index].description;
-    this.newAssignedTo = this.state.currentList.items[index].assigned_to;
-    this.newDueDate = this.state.currentList.items[index].due_date;
-    this.newCompleted = this.state.currentList.items[index].completed;
+    this.newDescription = JSON.parse(JSON.stringify(this.state.currentList.items[index].description));
+    this.newAssignedTo = JSON.parse(JSON.stringify(this.state.currentList.items[index].assigned_to));
+    this.newDueDate = JSON.parse(JSON.stringify(this.state.currentList.items[index].due_date));
+    this.newCompleted = JSON.parse(JSON.stringify(this.state.currentList.items[index].completed));
     this.setState({currentScreen: AppScreen.ITEM_SCREEN,
       currentItem: index});
   }
 
   sortTasks = () =>{
     let updatedList = this.state.currentList;
+    this.createTransaction(updatedList);
     if(this.state.reverseTaskSort){
       updatedList.items.sort((a,b) => a.description > b.description);
     } else {
@@ -90,6 +101,7 @@ class App extends Component {
 
   sortDates = () =>{
     let updatedList = this.state.currentList;
+    this.createTransaction(updatedList);
     if(this.state.reverseDateSort){
       updatedList.items.sort((a,b) => a.due_date > b.due_date);
     } else {
@@ -122,6 +134,7 @@ class App extends Component {
 
   sortComplete = () =>{
     let updatedList = this.state.currentList;
+    this.createTransaction(updatedList);
     if(this.state.reverseCompletedSort){
       updatedList.items.sort((a,b) => a.completed > b.completed);
     } else {
@@ -212,6 +225,7 @@ class App extends Component {
   newCompleted = null;
   moveListItemUp = (index) => {
     let updateList = this.state.currentList;
+    this.createTransaction(updateList);
     if(index > 0){
       let temp = updateList.items[index-1];
       updateList.items[index-1] = updateList.items[index];
@@ -247,6 +261,7 @@ class App extends Component {
 
   moveListItemDown = (index) => {
     let updateList = this.state.currentList;
+    this.createTransaction(updateList);
     if(index < updateList.items.length-1){
       let temp = updateList.items[index+1];
       updateList.items[index+1] = updateList.items[index];
@@ -281,6 +296,7 @@ class App extends Component {
   }
   removeListItem  = (index) => {
     let updateList = this.state.currentList;
+    this.createTransaction(updateList);
     updateList.items.splice(index, 1);
     this.readjustKeys(updateList);
     if(this.findFirstTask() === 0){
@@ -321,7 +337,9 @@ class App extends Component {
     this.newCompleted = completed;
   }
   submitChanges = () => {
-    let updateList = this.state.currentList;
+    let updateList = JSON.parse(JSON.stringify(this.state.currentList));
+    console.log(this.state.currentList);
+    this.createTransaction(this.state.currentList);
     this.readjustKeys(updateList);
     updateList.items[this.state.currentItem].description = this.newDescription;
     updateList.items[this.state.currentItem].assigned_to = this.newAssignedTo;
@@ -333,13 +351,17 @@ class App extends Component {
   }
   cancelChanges = () => {
     let updateList = this.state.currentList;
+    if(this.newItem === 1){
     updateList.items.splice((updateList.items.length-1), 1);
+    }
+    this.newItem = 0;
     this.setState({currentScreen: AppScreen.LIST_SCREEN,
       currentItem: null,
       currentList: updateList
     });
   }
   createNewItem = (index) => {
+    this.newItem = 1;
     let updateList = this.state.currentList;
     let newItem = {
       key: null,
@@ -351,8 +373,8 @@ class App extends Component {
     newItem.key = index;
     updateList.items.push(newItem);
     this.setState({currentList: updateList,
-      currentScreen: AppScreen.ITEM_SCREEN,
-      currentItem: index});
+    currentScreen: AppScreen.ITEM_SCREEN,
+    currentItem: index});
     this.newDescription = this.state.currentList.items[index].description;
     this.newAssignedTo = this.state.currentList.items[index].assigned_to;
     this.newDueDate = this.state.currentList.items[index].due_date;
@@ -378,6 +400,33 @@ class App extends Component {
     this.setState({currentList: newList,
       currentScreen: AppScreen.LIST_SCREEN});
   }
+  undoTransaction = () => {
+    let list = this.jsTPS.undoTransaction();
+    this.jsTPS.transactions[this.jsTPS.mostRecentTransaction+1] = new todoList_Transaction(this.state.currentList);
+    if(list !== undefined){
+        this.setState({currentList: list});
+    }
+  }
+  redoTransaction = () => {
+    let list = this.jsTPS.doTransaction();
+    this.jsTPS.transactions[this.jsTPS.mostRecentTransaction] = new todoList_Transaction(this.state.currentList);
+    if(list !== undefined){
+    this.setState({currentList: list})
+    }
+  }
+  createTransaction(list){
+    let newList = {
+      key: null,
+      name: "Unknown",
+      owner: "Unknown",
+      items: []
+    };
+    newList.key = JSON.parse(JSON.stringify(list.key));
+    newList.name = JSON.parse(JSON.stringify(list.name));
+    newList.owner = JSON.parse(JSON.stringify(list.owner));
+    newList.items = JSON.parse(JSON.stringify(list.items));
+    this.jsTPS.addTransaction(new todoList_Transaction(newList));
+  }
   render() {
     switch(this.state.currentScreen) {
       case AppScreen.HOME_SCREEN:
@@ -399,7 +448,9 @@ class App extends Component {
           removeListItem={this.removeListItem.bind(this)}
           goItemScreen={this.goItemScreen.bind(this)}
           createNewItem={this.createNewItem.bind(this)}
-          deleteList={this.deleteList.bind(this)} />;
+          deleteList={this.deleteList.bind(this)}
+          undoTransaction={this.undoTransaction.bind(this)}
+          redoTransaction={this.redoTransaction.bind(this)} />;
       case AppScreen.ITEM_SCREEN:
         return <ItemScreen
           todoItem={this.state.currentList.items[this.state.currentItem]}
